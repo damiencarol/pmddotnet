@@ -9,6 +9,8 @@ namespace PmdDotnet.Rules.Codesize
 {
     public class TooManyMethods : AbstractRule
     {
+        public int minimum { get; set; }
+
         public TooManyMethods(int minimum_val)
             : base("codesize", "TooManyMethods",
                 "A class with too many methods is probably a good target for refactoring, in order to reduce its complexity and find a way to have more fine grained objects.")
@@ -69,26 +71,5 @@ namespace PmdDotnet.Rules.Codesize
 
             return v;
         }
-
-        private SequencePoint GetLastSequencePoint(Mono.Collections.Generic.Collection<Mono.Cecil.Cil.Instruction> collection)
-        {
-            for (int i = (collection.Count - 1); i > 0; --i)
-            {
-                if (collection[i].SequencePoint != null)
-                    return collection[i].SequencePoint;
-            }
-            return null;
-        }
-
-        private void AddViolation(Dictionary<String, List<Violation>> files, string fileName, Violation v)
-        {
-            if (!files.ContainsKey(fileName))
-            {
-                files[fileName] = new List<Violation>();
-            }
-            files[fileName].Add(v);
-        }
-
-        public int minimum { get; set; }
     }
 }

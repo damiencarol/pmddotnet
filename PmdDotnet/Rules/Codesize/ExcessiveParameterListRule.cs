@@ -8,6 +8,8 @@ namespace PmdDotnet.Rules.Codesize
 {
     public class ExcessiveParameterListRule : AbstractRule
     {
+        public int minimum { get; set; }
+
         public ExcessiveParameterListRule(int minimum_val)
             : base("codesize", "ExcessiveParameterList",
                 "Long parameter lists can indicate that a new object should be created to wrap the numerous parameters. Basically, try to group the parameters together.")
@@ -65,26 +67,5 @@ namespace PmdDotnet.Rules.Codesize
 
             return v;
         }
-
-        private SequencePoint GetLastSequencePoint(Mono.Collections.Generic.Collection<Mono.Cecil.Cil.Instruction> collection)
-        {
-            for (int i = (collection.Count - 1); i > 0; --i)
-            {
-                if (collection[i].SequencePoint != null)
-                    return collection[i].SequencePoint;
-            }
-            return null;
-        }
-
-        private void AddViolation(Dictionary<String, List<Violation>> files, string fileName, Violation v)
-        {
-            if (!files.ContainsKey(fileName))
-            {
-                files[fileName] = new List<Violation>();
-            }
-            files[fileName].Add(v);
-        }
-
-        public int minimum { get; set; }
     }
 }

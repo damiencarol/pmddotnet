@@ -32,16 +32,20 @@ namespace PmdDotnet.Rules.Codesize
                         if (method.IsConstructor || method.IsGetter || method.IsSetter)
                             continue;
 
-                        if (method.Body.CodeSize > ExcessiveMethodLength_Minimum)
+                        if (!method.HasBody)
+                            continue;
+
+                        SequencePoint seqStart = GetFirstSequencePoint(method.Body.Instructions);
+                        SequencePoint seqEnd = GetLastSequencePoint(method.Body.Instructions);
+                        if (seqStart == null || seqEnd == null)
+                            continue;
+
+                        if ((seqEnd.StartLine - seqStart.StartLine) > ExcessiveMethodLength_Minimum)
                         {
-                            Console.WriteLine(type.FullName + ":" + method.FullName + ":" + method.Body.CodeSize);
-                            //Console.WriteLine("Document=" + method.Body.Instructions[0].SequencePoint.Document.ToString());
-                            string sourcecodefile = "???";
-                            if (method.HasBody)
-                            {
-                                sourcecodefile = method.Body.Instructions[0].SequencePoint.Document.Url;
-                            }
-                            AddViolation(files, sourcecodefile, BuildExcessiveMethodLength(type, method, "Taille=" + method.Body.CodeSize + ">" + ExcessiveMethodLength_Minimum));
+                            AddViolation(files, seqStart.Document.Url,
+                                BuildExcessiveMethodLength(type, method, "Taille="
+                                + (seqEnd.StartLine - seqStart.StartLine)
+                                + " > " + ExcessiveMethodLength_Minimum));
                         }
                     }
                 }
@@ -66,25 +70,6 @@ namespace PmdDotnet.Rules.Codesize
             v.Comment = comment;
 
             return v;
-        }
-
-        private SequencePoint GetLastSequencePoint(Mono.Collections.Generic.Collection<Mono.Cecil.Cil.Instruction> collection)
-        {
-            for (int i = (collection.Count - 1); i > 0; --i)
-            {
-                if (collection[i].SequencePoint != null)
-                    return collection[i].SequencePoint;
-            }
-            return null;
-        }
-
-        private void AddViolation(Dictionary<String, List<Violation>> files, string fileName, Violation v)
-        {
-            if (!files.ContainsKey(fileName))
-            {
-                files[fileName] = new List<Violation>();
-            }
-            files[fileName].Add(v);
         }
     }
 }

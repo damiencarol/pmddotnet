@@ -65,24 +65,5 @@ namespace PmdDotnet.Rules
 
             return v;
         }
-
-        private SequencePoint GetLastSequencePoint(Mono.Collections.Generic.Collection<Mono.Cecil.Cil.Instruction> collection)
-        {
-            for (int i = (collection.Count - 1); i > 0; --i)
-            {
-                if (collection[i].SequencePoint != null)
-                    return collection[i].SequencePoint;
-            }
-            return null;
-        }
-
-        private void AddViolation(Dictionary<String, List<Violation>> files, string fileName, Violation v)
-        {
-            if (!files.ContainsKey(fileName))
-            {
-                files[fileName] = new List<Violation>();
-            }
-            files[fileName].Add(v);
-        }
     }
 }
